@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Image Gallery</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+    }
+    body {
+      background-color: #f8f8f8;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .filter-buttons {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .filter {
+      padding: 10px 15px;
+      margin: 5px;
+      border: none;
+      background-color: #444;
+      color: white;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+    .filter.active,
+    .filter:hover {
+      background-color: #ff9800;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 15px;
+      width: 70%;
+      margin: 0 auto;
+    }
+    .gallery-item {
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .gallery-item img {
+      width: 100%;
+      height: 33vh;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+    .gallery-item:hover img {
+      transform: scale(1.1);
+    }
+    .lightbox {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      flex-direction: column;
+    }
+    .lightbox.hidden {
+      display: none;
+    }
+    .lightbox-img {
+      max-width: 90%;
+      max-height: 80vh;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+    .close {
+      color: white;
+      font-size: 30px;
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      cursor: pointer;
+    }
+    .nav-btn {
+      color: white;
+      font-size: 40px;
+      cursor: pointer;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      user-select: none;
+      padding: 10px;
+    }
+    .prev {
+      left: 10px;
+    }
+    .next {
+      right: 10px;
+    }
+    @media screen and (max-width: 600px) {
+      .nav-btn {
+        font-size: 30px;
+      }
+      .filter {
+        padding: 8px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Image Gallery</h1>
+
+  <!-- Filter Buttons -->
+  <div class="filter-buttons">
+    <button class="filter active" data-filter="all">All</button>
+    <button class="filter" data-filter="nature">Nature</button>
+    <button class="filter" data-filter="animals">Animals</button>
+    <button class="filter" data-filter="cities">Cities</button>
+  </div>
+
+  <!-- Gallery -->
+  <div class="gallery">
+    <div class="gallery-item" data-category="nature">
+      <img src="./img/n1.jpg" alt="Nature 1">
+    </div>
+    <div class="gallery-item" data-category="animals">
+      <img src="./img/a1.jpg" alt="Animal 1">
+    </div>
+    <div class="gallery-item" data-category="cities">
+      <img src="./img/c1.jpeg" alt="City 1">
+    </div>
+      <div class="gallery-item" data-category="animals">
+      <img src="./img/a4.jpg" alt="Animal 2">
+      </div>
+    <div class="gallery-item" data-category="nature">
+      <img src="./img/n2.jpg" alt="Nature 2">
+    </div>
+    <div class="gallery-item" data-category="animals">
+      <img src="./img/a2.jpeg" alt="Animal 2">
+    </div>
+    <div class="gallery-item" data-category="cities">
+      <img src="./img/c2.jpeg" alt="City 2">
+    </div>
+      <div class="gallery-item" data-category="animals">
+      <img src="./img/a3.webp" alt="Animal 2">
+      </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div id="lightbox" class="lightbox hidden">
+    <span class="close">&times;</span>
+    <img class="lightbox-img" src="" alt="Preview">
+    <div class="nav-btn prev">&#10094;</div>
+    <div class="nav-btn next">&#10095;</div>
+  </div>
+
+  <script>
+    const galleryItems = document.querySelectorAll('.gallery-item');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.querySelector('.lightbox-img');
+    const closeBtn = document.querySelector('.close');
+    const prevBtn = document.querySelector('.prev');
+    const nextBtn = document.querySelector('.next');
+    const filters = document.querySelectorAll('.filter');
+
+    let currentIndex = 0;
+    let visibleItems = Array.from(galleryItems);
+
+    function showLightbox(src) {
+      lightbox.classList.remove('hidden');
+      lightboxImg.src = src;
+    }
+
+    galleryItems.forEach((item, index) => {
+      item.addEventListener('click', () => {
+        visibleItems = Array.from(document.querySelectorAll('.gallery-item')).filter(i => i.style.display !== 'none');
+        currentIndex = visibleItems.indexOf(item);
+        showLightbox(item.querySelector('img').src);
+      });
+    });
+
+    nextBtn.addEventListener('click', () => {
+      currentIndex = (currentIndex + 1) % visibleItems.length;
+      showLightbox(visibleItems[currentIndex].querySelector('img').src);
+    });
+
+    prevBtn.addEventListener('click', () => {
+      currentIndex = (currentIndex - 1 + visibleItems.length) % visibleItems.length;
+      showLightbox(visibleItems[currentIndex].querySelector('img').src);
+    });
+
+    closeBtn.addEventListener('click', () => {
+      lightbox.classList.add('hidden');
+    });
+
+    filters.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filters.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const filter = btn.getAttribute('data-filter');
+        galleryItems.forEach(item => {
+          const category = item.getAttribute('data-category');
+          item.style.display = (filter === 'all' || filter === category) ? 'block' : 'none';
+        });
+
+        // Update visible items for lightbox
+        visibleItems = Array.from(document.querySelectorAll('.gallery-item')).filter(i => i.style.display !== 'none');
+      });
+    });
+  </script>
+</body>
+</html>
